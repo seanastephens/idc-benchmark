@@ -1,0 +1,221 @@
+\documentclass[journal]{vgtc}                % final (journal style)
+%\documentclass[review,journal]{vgtc}         % review (journal style)
+%\documentclass[widereview]{vgtc}             % wide-spaced review
+%\documentclass[preprint,journal]{vgtc}       % preprint (journal style)
+%\documentclass[electronic,journal]{vgtc}     % electronic version, journal
+
+%% Uncomment one of the lines above depending on where your paper is
+%% in the conference process. ``review'' and ``widereview'' are for review
+%% submission, ``preprint'' is for pre-publication, and the final version
+%% doesn't use a specific qualifier. Further, ``electronic'' includes
+%% hyperreferences for more convenient online viewing.
+
+%% Please use one of the ``review'' options in combination with the
+%% assigned online id (see below) ONLY if your paper uses a double blind
+%% review process. Some conferences, like IEEE Vis and InfoVis, have NOT
+%% in the past.
+
+%% Please note that the use of figures other than the optional teaser is not permitted on the first page
+%% of the journal version.  Figures should begin on the second page and be
+%% in CMYK or Grey scale format, otherwise, colour shifting may occur
+%% during the printing process.  Papers submitted with figures other than the optional teaser on the
+%% first page will be refused.
+
+%% These three lines bring in essential packages: ``mathptmx'' for Type 1
+%% typefaces, ``graphicx'' for inclusion of EPS figures. and ``times''
+%% for proper handling of the times font family.
+
+\usepackage{mathptmx}
+\usepackage{graphicx}
+\usepackage{times}
+
+%% We encourage the use of mathptmx for consistent usage of times font
+%% throughout the proceedings. However, if you encounter conflicts
+%% with other math-related packages, you may want to disable it.
+
+%% This turns references into clickable hyperlinks.
+\usepackage[bookmarks,backref=true,linkcolor=black]{hyperref} %,colorlinks
+\hypersetup{
+  pdfauthor = {},
+  pdftitle = {},
+  pdfsubject = {},
+  pdfkeywords = {},
+  colorlinks=true,
+  linkcolor= black,
+  citecolor= black,
+  pageanchor=true,
+  urlcolor = black,
+  plainpages = false,
+  linktocpage
+}
+
+%% If you are submitting a paper to a conference for review with a double
+%% blind reviewing process, please replace the value ``0'' below with your
+%% OnlineID. Otherwise, you may safely leave it at ``0''.
+\onlineid{0}
+
+%% declare the category of your paper, only shown in review mode
+\vgtccategory{Research}
+
+%% allow for this line if you want the electronic option to work properly
+\vgtcinsertpkg
+
+%% In preprint mode you may define your own headline.
+%\preprinttext{To appear in an IEEE VGTC sponsored conference.}
+
+%% Paper title.
+
+\title{Benchmarks for Interactive Data Cubes}
+
+%% This is how authors are specified in the journal style
+
+%% indicate IEEE Member or Student Member in form indicated below
+\author{???}
+\authorfooter{
+%% insert punctuation at end of each item
+\item
+ Martha Stewart is with Martha Stewart Enterprises at Microsoft
+ Research. E-mail: martha.stewart@marthastewart.com.
+}
+
+%other entries to be set up for journal
+\shortauthortitle{Biv \MakeLowercase{\textit{et al.}}: Global Illumination for Fun and Profit}
+%\shortauthortitle{Firstauthor \MakeLowercase{\textit{et al.}}: Paper Title}
+
+\abstract{The data cube is a convenient abstraction for exploring
+	multi-dimensional datasets. However, exploring large datasets as data cubes
+	at interactive speeds requires specialized data structures and systems.
+	Such systems exist, but there is no comprehensive comparison of these
+	systems on realistic data. We present a benchmark that uses real-world and
+	synthetic spatiotemporal data to explore the performance of these systems
+	on realistic query sets.  We compare four existing systems using our
+	implementation and demonstrate performance differences between them.
+	Finally, we give a set of guidelines for choosing a system for
+	applications.
+}
+
+%% Keywords that describe your work. Will show as 'Index Terms' in journal
+%% please capitalize first letter and insert punctuation after last keyword
+\keywords{Benchmark, Data Cube}
+
+%% ACM Computing Classification System (CCS). 
+%% See <http://www.acm.org/class/1998/> for details.
+%% The ``\CCScat'' command takes four arguments.
+
+\CCScatlist{ % not used in journal version
+ \CCScat{K.6.1}{Management of Computing and Information Systems}%
+{Project and People Management}{Life Cycle};
+ \CCScat{K.7.m}{The Computing Profession}{Miscellaneous}{Ethics}
+}
+
+%% Uncomment below to include a teaser figure.
+%%  \teaser{
+%% \centering
+%% \includegraphics[width=16cm]{CypressView}
+%%  \caption{In the Clouds: Vancouver from Cypress Mountain.}
+%%  }
+
+%% Uncomment below to disable the manuscript note
+%\renewcommand{\manuscriptnotetxt}{}
+
+%% Copyright space is enabled by default as required by guidelines.
+%% It is disabled by the 'review' option or via the following command:
+% \nocopyrightspace
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% START OF THE PAPER %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%% The ``\maketitle'' command must be the first command after the
+%% ``\begin{document}'' command. It prepares and prints the title block.
+
+%% the only exception to this rule is the \firstsection command
+\firstsection{Introduction}
+
+\maketitle
+
+%% \section{Introduction} %for journal use above \firstsection{..} instead
+Data cubes are a useful tool for exploring aggregates of high dimensional data \cite{data_cubes}. However, executing queries on data cubes of large datasets fast enough to support an interactive user interface is technically difficult because current systems use excessive memory usage or demand a high degree of parallelism \cite{nanocubes, parallel_paper}.
+
+To address these problems, systems such as \textit{Nanocubes} and \textit{Hashedcubes} allow fast queries in several dimensions by storing the dataset in a server-side structure on dedicated hardware \cite{nanocube}\cite{hashedcube}. This approach is much more complex and resources intensive than simpler approaches such as linear scans on a client, as in \textit{datavore} and \textit{crossfilter} \cite{datavore,crossfilter}. On the other hand, it allows interactive exploration of data sets of tens of millions of points. 
+
+Are we doing imMens?
+
+Each of these systems were published with performance information exercising the system on real-world test data. However, the published performance measures are not, in general, comparable. Different datasets were used, and critical parameters such as field resolution differ. As such, there is no complete picture of data/schema configurations each of these systems is best suited for, nor how each scales in different configurations.
+
+This paper contributes a benchmark that allows direct comparisons of the query performance of these systems on realistic data. Additionally, we describe an implementation for \textit{nanocubes} and \textit{hashedcubes}. Finally, we give guidance for choosing between and configuring these systems based on dataset and application.
+
+
+\section{Related work}
+- mention streaming and why we are not covering it
+- Other benchmarks in databases, specifically on-disk cube
+  - Not applicable because not specifically spatiotemporal, etc?
+- "Implementing Data Cubes Efficiently" should be cited
+
+\section{Benchmark}
+- Realistic benchmark given user sessions, best guess
+- Measuring: memory, query time, build time, 
+- Which data sources and why
+- Which queries and why (synthetic and from user sessions)
+
+\section{Experiments}
+- Which systems (nanocubes, hashedcubes, immens, crossfilter, datavore)
+- Plots, details of experiments (compiling, machine, how many times, more detail is better)
+- Interpretation of results
+
+\section{Discussion (of paper)}
+- What did we not do
+  - how to improve this
+  - what did we miss
+  - Different interface/system induces different user behavior (cite Jeff Heer, The effects of interactive latency on explorative visual analysis)
+  - Can be extended to new data, hopefully new queries
+
+\section{Conclusion and Future Work}
+- What this means for making new systems (easier, negative space)
+- What next (making things parameterizable, what is the next research question)
+
+% \begin{table}
+% %% Table captions on top in journal version
+%  \caption{SciVis Paper Acceptance Rate: 1994-2006}
+%  \label{vis_accept}
+%  \scriptsize
+%  \begin{center}
+%    \begin{tabular}{cccc}
+%      Year & Submitted & Accepted & Accepted (\%)\\
+%    \hline
+%      1994 &  91 & 41 & 45.1\\
+%      1995 & 102 & 41 & 40.2\\
+%      1996 & 101 & 43 & 42.6\\
+%      1997 & 117 & 44 & 37.6\\
+%      1998 & 118 & 50 & 42.4\\
+%      1999 & 129 & 47 & 36.4\\
+%      2000 & 151 & 52 & 34.4\\
+%      2001 & 152 & 51 & 33.6\\
+%      2002 & 172 & 58 & 33.7\\
+%      2003 & 192 & 63 & 32.8\\
+%      2004 & 167 & 46 & 27.6\\
+%      2005 & 268 & 88 & 32.8\\
+%      2006 & 228 & 63 & 27.6
+%    \end{tabular}
+%  \end{center}
+% \end{table}
+
+% \begin{figure}[htb]
+%  \centering
+%  \includegraphics[width=1.5in]{sample}
+%  \caption{Sample illustration.}
+% \end{figure}
+
+
+%% if specified like this the section will be committed in review mode
+\acknowledgments{
+The authors wish to thank A, B, C. This work was supported in part by
+a grant from XYZ.}
+
+\bibliographystyle{abbrv}
+%%use following if all content of bibtex file should be shown
+%\nocite{*}
+\bibliography{template}
+\end{document}

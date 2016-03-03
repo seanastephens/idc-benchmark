@@ -1,0 +1,32 @@
+Introduction
+- Why should this exist, a sales pitch
+- brief list of contributions 
+- This should frame current and future systems of this type; we don't know how to evaluate them well, this will be a decent way to
+
+Related work
+- mention streaming and why we are not covering it
+- Other benchmarks in databases, specifically on-disk cube
+  - Not applicable because not specifically spatiotemporal, etc?
+- "Implementing Data Cubes Efficiently" should be cited
+
+Benchmark
+- Realistic benchmark given user sessions, best guess
+- Measuring: memory, query time, build time, 
+- Which data sources and why
+- Which queries and why (synthetic and from user sessions)
+
+Experiments
+- Which systems (nanocubes, hashedcubes, immens, crossfilter, datavore)
+- Plots, details of experiments (compiling, machine, how many times, more detail is better)
+- Interpretation of results
+
+Discussion (of paper)
+- What did we not do
+  - how to improve this
+  - what did we miss
+  - Different interface/system induces different user behavior (cite Jeff Heer, The effects of interactive latency on explorative visual analysis)
+  - Can be extended to new data, hopefully new queries
+
+Conclusion and Future Work
+- What this means for making new systems (easier, negative space)
+- What next (making things parameterizable, what is the next research question)
