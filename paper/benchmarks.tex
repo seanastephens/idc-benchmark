@@ -185,7 +185,7 @@ In this paper we are specifically interested in systems that allow fast queries 
 
 \begin{itemize}
 	\item $1$ or more \textit{spatial} attributes, defined as a pair of related coordinates from an ordered domain, often latitude and longitude.
-	\item $0$ or more \textit{categorical} variables, defined as an attribute over a small discrete domain.
+	\item $0$ or more \textit{categorical} attributes, defined as a value from a discrete domain.
 	\item $1$ \textit{time} attribute, defined as an attribute over an ordered domain.
 \end{itemize}
 
@@ -289,7 +289,23 @@ We identify the following categories of datasets as distinct categories for whic
 	\item $100+$ Million data points, $3-5$ dimensions. Examples: Airline,
 		Splom
 
+	\item A dataset with more than one spatial attribute \FIXME{Taxicab?}.
+
+	\FIXME{Is a spatial attribute 1 or 2 dimensions}
 \end{itemize}
+
+The first three classes of dataset consist of one spatial attribute, 1 temporal
+attribute, and $0-29$ categorical attributes. Conservatively, supposing that
+categorical dimensions have small domains of size $k$, it is clear that it is
+unreasonable to exhaustively search up to $k^{30}$ combinations of categorical
+variables; the problem is exacerbated when we consider that we would ideally
+test each of those combinations against many different spatial and time ranges.
+In these cases, we will show that a regular but sparse sampling of the
+categorical variable combinations will yield sufficient information about the
+performance characteristics of the systems under test. \FIXME{Should consider trying to apply low-discrepancy sequences here}
+
+For smaller numbers of dimensions, it will be possible to exhaustively check all combinations of categorical variables \FIXME{Why would we not sample anyway to make it faster?}.
+
 
 \TODO{Realistic benchmark given user sessions, best guess}
 
