@@ -152,7 +152,7 @@ dataset in a server-side structure on dedicated hardware
 resources intensive than simpler approaches such as linear scans on a client,
 as in \textit{datavore} and \textit{crossfilter} \cite{datavore,crossfilter}.
 On the other hand, it allows interactive exploration of data sets of tens of
-millions of points. Alternatively, appropriate limits on the resolution or dimensionality of the dataset can reduce query latency to interactive rates, as is done in \textit{imMens} \cite{imMens}. 
+millions of points. Alternatively, appropriate limits on the resolution or dimensionality of the dataset can reduce query latency to interactive rates, as is done in \textit{imMens} \cite{2013-immens}. 
 
 Each of these systems were published with performance information exercising
 the system on real-world test data. However, the published performance measures
@@ -169,6 +169,7 @@ dataset and application.
 
 
 \section{Related work}
+
 Large data visualization frequently requires computing aggregations over the
 entirety of a dataset to produce counts, histograms, and density plots
 \cite{?}. For an interactive visualization, supporting arbitrary aggregations
@@ -179,6 +180,14 @@ changes in a user's exploration to the detriment of analysis, as explored in
 \cite{2014-latency} \FIXME{Inline citation here?}). However, naive techniques
 for computing aggregations, namely linear scans over the dataset, do not scale
 to datasets with tens of millions of entries.
+
+In this paper we are specifically interested in systems that allow fast queries on large spatiotemporal datasets. Specifically, we mean systems that efficiently support data with the following attributes:
+
+\begin{itemize}
+	\item $1$ or more \textit{spatial} attributes, defined as a pair of related coordinates from an ordered domain, often latitude and longitude.
+	\item $0$ or more \textit{categorical} variables, defined as an attribute over a small discrete domain.
+	\item $1$ \textit{time} attribute, defined as an attribute over an ordered domain.
+\end{itemize}
 
 \subsection{Existing Systems}
 
@@ -196,10 +205,11 @@ Additionally, it does not allow fine queries in sparsely populated areas, as a
 tradeoff to prevent poor performance in other areas.
 
 \textit{ImMens} pre-computes and compactly stores aggregates as so-called
-``data-tiles.'' These tiles can be quickly queried using the GPU on the client.
-ImMens achieves very fast response time (limited by the GPU refresh
-rate) and does not require a dedicated server, but requires pre-computing data
-tiles and limits on the resolution and dimensionality of the underlying data.
+``data-tiles'' \cite{2013-immens}. These tiles can be quickly queried using the
+GPU on the client.  ImMens achieves very fast response time (limited by the GPU
+refresh rate) and does not require a dedicated server, but requires
+pre-computing data tiles and limits on the resolution and dimensionality of the
+underlying data.
 
 An alternate solution to this performance challenge is sampling.
 \textit{BlinkDB} uses parallelism and intelligent sampling strategies to
@@ -236,6 +246,50 @@ applications.
 \TODO{"Implementing Data Cubes Efficiently" should be cited}
 
 \section{Benchmark}
+
+\FIXME{ How precise should thie specification be? }
+
+We have the following goals for a benchmark:
+
+\begin{itemize}
+	\item \textbf{Use realistic data and queries.} The systems under test
+		should operate on of datasets representative of real-world data. This
+		means datasets of large scale and with varied schema that show up in
+		real-world application. Specifically, the benchmark must test datasets
+		that range from $1-100$ million data points, with $3$ or more dimensions
+		\FIXME{Why is this the right range? What evidence do we have for
+		this?}\cite{...}.  Additionally, the queries run against the systems
+		under test should be realistic.  They should reflect queries that
+		result from supporting actual user behavior.
+
+	\item \textbf{Exercise entire data-query space.} The set of configurations
+		and query sets used by the benchmark should span the full range of data
+		sets for which these systems may be reasonably applied. 
+		
+	\item \textbf{Efficiently cover data-query space.} The set of possible
+		systems, configurations, datasets, and queries is very large.
+		Pragmatically, it is important to choose tests that complete our goals
+		without requiring excessive time or resources to complete.
+
+\end{itemize}
+
+\subsection{Realistic data and queries}
+
+In the interest of supporting further research and consistent performance measurements across systems, part of the benchmark will be based on publicly-available data sets. However, we will supplement this with synthetic data when there is no suitable public dataset for testing a particular aspect of performance.
+
+We identify the following categories of datasets as distinct categories for which we expect significant deviation in performance between the systems under test. \FIXME{Why?}
+
+\begin{itemize}
+
+	\item ~$1$ Million data points, $3-32$ dimensions. Examples: Splom, Anything
+
+	\item $5-10$ Million data points, $3-10$ dimensions. Examples: Brightkite,
+		Gowalla, Splom
+
+	\item $100+$ Million data points, $3-5$ dimensions. Examples: Airline,
+		Splom
+
+\end{itemize}
 
 \TODO{Realistic benchmark given user sessions, best guess}
 
