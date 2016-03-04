@@ -152,8 +152,7 @@ dataset in a server-side structure on dedicated hardware
 resources intensive than simpler approaches such as linear scans on a client,
 as in \textit{datavore} and \textit{crossfilter} \cite{datavore,crossfilter}.
 On the other hand, it allows interactive exploration of data sets of tens of
-millions of points. \FIXME{If we get imMens working we need to talk about that
-too.}
+millions of points. Alternatively, appropriate limits on the resolution or dimensionality of the dataset can reduce query latency to interactive rates, as is done in \textit{imMens} \cite{imMens}. 
 
 Each of these systems were published with performance information exercising
 the system on real-world test data. However, the published performance measures
@@ -164,7 +163,7 @@ nor how each scales in different configurations.
 
 This paper contributes a benchmark that allows direct comparisons of the query
 performance of these systems on realistic data. Additionally, we describe an
-implementation for \textit{nanocubes} and \textit{hashedcubes}. Finally, we
+implementation for nanocubes and hashedcubes. Finally, we
 give guidance for choosing between and configuring these systems based on
 dataset and application.
 
@@ -181,51 +180,94 @@ changes in a user's exploration to the detriment of analysis, as explored in
 for computing aggregations, namely linear scans over the dataset, do not scale
 to datasets with tens of millions of entries.
 
-Several solutions exist for this problem. \textit{Nanocubes} builds a
+\subsection{Existing Systems}
+
+Several solutions exist for this problem. Nanocubes builds a
 hierarchical tree of agregations that fits in main memory, in contrast to
 traditional relational database data cube aggregations which must be stored on
 disk \cite{nanocubes}. This system provides query performance that is fast
-enough for interactive applications, but is memory intensive.
-\textit{hashedcubes} achieves similar performance for many common queries but
-consumes less memory by using a single sorted array, at the cost of poor
-performance in some cases.
+enough for interactive applications and suports queries at different
+resolutions (up to the limits of the underlying data), but is memory intensive.
 
-\FIXME{Talk about some/all of parallel systems, imMens, crossfilter, datavore}. 
+A new alternative to nanocubes is hashedcubes. This system
+achieves similar performance for many common queries but consumes less memory
+by using a single sorted array, at the cost of poor performance in some cases.
+Additionally, it does not allow fine queries in sparsely populated areas, as a
+tradeoff to prevent poor performance in other areas.
 
-\begin{enumerate}
-	\item mention streaming and why we are not covering it
-	\item Other benchmarks in databases, specifically on-disk cube (Not applicable because not specifically spatiotemporal, etc?)
-	\item "Implementing Data Cubes Efficiently" should be cited
-\end{enumerate}
+\textit{ImMens} pre-computes and compactly stores aggregates as so-called
+``data-tiles.'' These tiles can be quickly queried using the GPU on the client.
+ImMens achieves very fast response time (limited by the GPU refresh
+rate) and does not require a dedicated server, but requires pre-computing data
+tiles and limits on the resolution and dimensionality of the underlying data.
+
+An alternate solution to this performance challenge is sampling.
+\textit{BlinkDB} uses parallelism and intelligent sampling strategies to
+achieve approximate query results with $2-10\%$ error and response times on the
+order of $2$ seconds \cite{blinkdb}. This system is designed for datasets on
+the order of terabytes in size, but does not provide response times fast enough
+for an interactive application \FIXME{In the sense we are describing -- should
+specify this more carefully}. For datasets with tens to hundreds of millions of
+points, the previously described systems can produce much more accurate results
+using less time and resources. For this reason, we will not benchmark sampling
+systems here. \FIXME{This hardly seems like a comprehensive treatment of
+sampling systems -- need to look at more references}
+
+Finally, for small datasets with $1-5$ million elements, it is possible to do
+queries at near interactive latencies in a web browser. Systems such as
+\textit{datavore} and \textit{crossfilter} take this approach
+\cite{crossfilter,datavore}. While this approach does not scale to tens and
+hundreds of millions of data points due to latency and bandwidth consumption,
+it is a simple solution for small datasets. 
+
+In this paper we will describe a benchmark aimed at nanocubes, hashedcubes,
+imMens, and crossfilter/datavore. Despite the performance measurements reported
+in publications for these systems, it is not possible to definitively state how
+each of these systems perform relative to each other. It is similarly not
+well-understood how each of these systems scale with dataset size,
+dimensionality, and query distribution. Our contribution is to rectify this
+situation and provide guidance for choosing between these systems for
+applications.
+
+\TODO{Why are we not covering streaming}
+
+\TODO{Why is TPC not applicable? On-disk, not specifically spatiotemporal}
+
+\TODO{"Implementing Data Cubes Efficiently" should be cited}
 
 \section{Benchmark}
-\begin{enumerate}
-	\item Realistic benchmark given user sessions, best guess
-	\item Measuring: memory, query time, build time, 
-	\item Which data sources and why
-	\item Which queries and why (synthetic and from user sessions)
-\end{enumerate}
+
+\TODO{Realistic benchmark given user sessions, best guess}
+
+\TODO{Measuring: memory, query time, build time, }
+
+\TODO{Which data sources and why}
+
+\TODO{Which queries and why (synthetic and from user sessions)}
 
 \section{Experiments}
-\begin{enumerate}
-	\item Which systems (nanocubes, hashedcubes, immens, crossfilter, datavore)
-	\item Plots, details of experiments (compiling, machine, how many times, more detail is better)
-	\item Interpretation of results
-\end{enumerate}
+
+\TODO{Which systems (nanocubes, hashedcubes, immens, crossfilter, datavore)}
+
+\TODO{Plots, details of experiments (compiling, machine, how many times, more detail is better)}
+
+\TODO{Interpretation of results}
 
 \section{Discussion (of paper; what did we not do?)}
-\begin{enumerate}
-	\item how to improve this
-	\item what did we miss
-	\item Different interface/system induces different user behavior (cite Jeff Heer, The effects of interactive latency on explorative visual analysis)
-	\item Can be extended to new data, hopefully new queries
-\end{enumerate}
+
+\TODO{how to improve this}
+
+\TODO{what did we miss}
+
+\TODO{Different interface/system induces different user behavior (cite Jeff Heer, The effects of interactive latency on explorative visual analysis)}
+
+\TODO{Can be extended to new data, hopefully new queries}
 
 \section{Conclusion and Future Work}
-\begin{enumerate}
-	\item What this means for making new systems (easier, negative space)
-	\item What next (making things parameterizable, what is the next research question)
-\end{enumerate}
+
+\TODO{What this means for making new systems (easier, negative space)}
+
+\TODO{What next (making things parameterizable, what is the next research question)}
 
 % \begin{table}
 % %% Table captions on top in journal version
