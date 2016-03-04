@@ -15,35 +15,39 @@ for line in sys.stdin:
     url = line.strip()
 
     pattern = ''.join([
-        '/[a-zA-Z]+/tile/tile/',
-        '(?P<key>\d+)/',
-        '(?P<x>\d+)/',
-        '(?P<y>\d+)/',
-        '(?P<zoom>\d+)/',
-        '(?P<resolution>\d+)/',
-        '(where/(?P<categoricals>[_a-zA-Z&0-9=]+)/)?',
-        'tseries/tseries/',
-        '(?P<start_date>\d+/\d+/\d+)/',
-        '(?P<end_date>\d+/\d+/\d+)',
+        '^',
+        '/[a-zA-Z]+/',
+        '(',
+            'tile/tile/(?P<tile_clause>\d+/\d+/\d+/\d+/\d+)/',
+        '|',
+            'where/(?P<where_clause>[_a-zA-Z&0-9=]+)/',
+        '|',
+            'tseries/tseries/(?P<start_date>\d+/\d+/\d+)/(?P<end_date>\d+/\d+/\d+)/?',
+        ')*'
+        '$'
         ])
 
     match = re.match(pattern, url)
     if match:
-        x = int(match.group('x'))
-        y = int(match.group('y'))
-        zoom = int(match.group('zoom'))
-        resolution = int(match.group('resolution'))
+        clauses = match.groupdict()
+        tile_clause = clauses["tile_clause"]
+        if tile_clause:
+            key, x, y, zoom, resolution = map(int, tile_clause.split('/'))
 
-        categoricals = {}
-        if match.groupdict()['categoricals']:
-            for condition in match.group('categoricals').split('&'):
+        where = {}
+        where_clause = clauses["where_clause"]
+        if where_clause:
+            for condition in where_clause.split('&'):
                 field, value = condition.split('=')
-                categoricals[field] = value
+                where[field] = value
 
-        t0 = datetime.datetime.strptime(match.group("start_date"), "%Y/%m/%d")
-        t1 = datetime.datetime.strptime(match.group("end_date"), "%Y/%m/%d")
+        start_date = clauses["start_date"]
+        end_date = clauses["end_date"]
+        if start_date and end_date:
+            t0 = datetime.datetime.strptime(start_date, "%Y/%m/%d")
+            t1 = datetime.datetime.strptime(end_date, "%Y/%m/%d")
 
-        print adapter.query_tile_time_url(x, y, t0, t1, zoom, resolution, where=categoricals)
+        print adapter.query_tile_time_url(x, y, t0, t1, zoom, resolution, where=where)
         continue
 
     raise Exception('unmatched query')

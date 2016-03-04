@@ -6,3 +6,5 @@ benchmarks.log
 benchmarks.out
 benchmarks.pdf
 benchmarks.ps
+
+*.pyc
