@@ -63,14 +63,16 @@
 %% In preprint mode you may define your own headline.
 %\preprinttext{To appear in an IEEE VGTC sponsored conference.}
 
+\include{defs}
+
 %% Paper title.
 
-\title{Benchmarks for Interactive Data Cubes}
+\title{A Benchmark for Interactive Data Cubes}
 
 %% This is how authors are specified in the journal style
 
 %% indicate IEEE Member or Student Member in form indicated below
-\author{???}
+\author{Sean Stephens, Carlos Scheidegger}
 \authorfooter{
 %% insert punctuation at end of each item
 \item
@@ -137,44 +139,93 @@
 \maketitle
 
 %% \section{Introduction} %for journal use above \firstsection{..} instead
-Data cubes are a useful tool for exploring aggregates of high dimensional data \cite{data_cubes}. However, executing queries on data cubes of large datasets fast enough to support an interactive user interface is technically difficult because current systems use excessive memory usage or demand a high degree of parallelism \cite{nanocubes, parallel_paper}.
+Data cubes are a useful tool for exploring aggregates of high dimensional data
+\cite{data_cubes}. However, executing queries on data cubes of large datasets
+fast enough to support an interactive user interface is technically difficult
+because current systems use excessive memory usage or demand a high degree of
+parallelism \cite{nanocubes, parallel_paper}.
 
-To address these problems, systems such as \textit{Nanocubes} and \textit{Hashedcubes} allow fast queries in several dimensions by storing the dataset in a server-side structure on dedicated hardware \cite{nanocube}\cite{hashedcube}. This approach is much more complex and resources intensive than simpler approaches such as linear scans on a client, as in \textit{datavore} and \textit{crossfilter} \cite{datavore,crossfilter}. On the other hand, it allows interactive exploration of data sets of tens of millions of points. 
+To address these problems, systems such as \textit{Nanocubes} and
+\textit{Hashedcubes} allow fast queries in several dimensions by storing the
+dataset in a server-side structure on dedicated hardware
+\cite{nanocube}\cite{hashedcube}. This approach is much more complex and
+resources intensive than simpler approaches such as linear scans on a client,
+as in \textit{datavore} and \textit{crossfilter} \cite{datavore,crossfilter}.
+On the other hand, it allows interactive exploration of data sets of tens of
+millions of points. \FIXME{If we get imMens working we need to talk about that
+too.}
 
-Are we doing imMens?
+Each of these systems were published with performance information exercising
+the system on real-world test data. However, the published performance measures
+are not, in general, comparable. Different datasets were used, and critical
+parameters such as field resolution differ. As such, there is no complete
+picture of data/schema configurations each of these systems is best suited for,
+nor how each scales in different configurations.
 
-Each of these systems were published with performance information exercising the system on real-world test data. However, the published performance measures are not, in general, comparable. Different datasets were used, and critical parameters such as field resolution differ. As such, there is no complete picture of data/schema configurations each of these systems is best suited for, nor how each scales in different configurations.
-
-This paper contributes a benchmark that allows direct comparisons of the query performance of these systems on realistic data. Additionally, we describe an implementation for \textit{nanocubes} and \textit{hashedcubes}. Finally, we give guidance for choosing between and configuring these systems based on dataset and application.
+This paper contributes a benchmark that allows direct comparisons of the query
+performance of these systems on realistic data. Additionally, we describe an
+implementation for \textit{nanocubes} and \textit{hashedcubes}. Finally, we
+give guidance for choosing between and configuring these systems based on
+dataset and application.
 
 
 \section{Related work}
-- mention streaming and why we are not covering it
-- Other benchmarks in databases, specifically on-disk cube
-  - Not applicable because not specifically spatiotemporal, etc?
-- "Implementing Data Cubes Efficiently" should be cited
+Large data visualization frequently requires computing aggregations over the
+entirety of a dataset to produce counts, histograms, and density plots
+\cite{?}. For an interactive visualization, supporting arbitrary aggregations
+smoothly on large datasets presents a problem due to performance. To maintain
+an interactive user experience, a plot of aggregates should refresh with low
+latency (This is not merely an aesthetic concern; high latency induces large
+changes in a user's exploration to the detriment of analysis, as explored in
+\cite{2014-latency} \FIXME{Inline citation here?}). However, naive techniques
+for computing aggregations, namely linear scans over the dataset, do not scale
+to datasets with tens of millions of entries.
+
+Several solutions exist for this problem. \textit{Nanocubes} builds a
+hierarchical tree of agregations that fits in main memory, in contrast to
+traditional relational database data cube aggregations which must be stored on
+disk \cite{nanocubes}. This system provides query performance that is fast
+enough for interactive applications, but is memory intensive.
+\textit{hashedcubes} achieves similar performance for many common queries but
+consumes less memory by using a single sorted array, at the cost of poor
+performance in some cases.
+
+\FIXME{Talk about some/all of parallel systems, imMens, crossfilter, datavore}. 
+
+\begin{enumerate}
+	\item mention streaming and why we are not covering it
+	\item Other benchmarks in databases, specifically on-disk cube (Not applicable because not specifically spatiotemporal, etc?)
+	\item "Implementing Data Cubes Efficiently" should be cited
+\end{enumerate}
 
 \section{Benchmark}
-- Realistic benchmark given user sessions, best guess
-- Measuring: memory, query time, build time, 
-- Which data sources and why
-- Which queries and why (synthetic and from user sessions)
+\begin{enumerate}
+	\item Realistic benchmark given user sessions, best guess
+	\item Measuring: memory, query time, build time, 
+	\item Which data sources and why
+	\item Which queries and why (synthetic and from user sessions)
+\end{enumerate}
 
 \section{Experiments}
-- Which systems (nanocubes, hashedcubes, immens, crossfilter, datavore)
-- Plots, details of experiments (compiling, machine, how many times, more detail is better)
-- Interpretation of results
+\begin{enumerate}
+	\item Which systems (nanocubes, hashedcubes, immens, crossfilter, datavore)
+	\item Plots, details of experiments (compiling, machine, how many times, more detail is better)
+	\item Interpretation of results
+\end{enumerate}
 
-\section{Discussion (of paper)}
-- What did we not do
-  - how to improve this
-  - what did we miss
-  - Different interface/system induces different user behavior (cite Jeff Heer, The effects of interactive latency on explorative visual analysis)
-  - Can be extended to new data, hopefully new queries
+\section{Discussion (of paper; what did we not do?)}
+\begin{enumerate}
+	\item how to improve this
+	\item what did we miss
+	\item Different interface/system induces different user behavior (cite Jeff Heer, The effects of interactive latency on explorative visual analysis)
+	\item Can be extended to new data, hopefully new queries
+\end{enumerate}
 
 \section{Conclusion and Future Work}
-- What this means for making new systems (easier, negative space)
-- What next (making things parameterizable, what is the next research question)
+\begin{enumerate}
+	\item What this means for making new systems (easier, negative space)
+	\item What next (making things parameterizable, what is the next research question)
+\end{enumerate}
 
 % \begin{table}
 % %% Table captions on top in journal version
@@ -217,5 +268,5 @@ a grant from XYZ.}
 \bibliographystyle{abbrv}
 %%use following if all content of bibtex file should be shown
 %\nocite{*}
-\bibliography{template}
+\bibliography{benchmarks}
 \end{document}

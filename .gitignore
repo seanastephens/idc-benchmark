@@ -1,10 +1,9 @@
-benchmarks.aux
-benchmarks.bbl
-benchmarks.blg
-benchmarks.dvi
-benchmarks.log
-benchmarks.out
-benchmarks.pdf
-benchmarks.ps
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.log
+*.out
+*.ps
 
 *.pyc
