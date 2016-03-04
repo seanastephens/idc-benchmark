@@ -129,6 +129,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+\large{
 
 %% The ``\maketitle'' command must be the first command after the
 %% ``\begin{document}'' command. It prepares and prints the title block.
@@ -304,30 +305,24 @@ In these cases, we will show that a regular but sparse sampling of the
 categorical variable combinations will yield sufficient information about the
 performance characteristics of the systems under test. \FIXME{Should consider trying to apply low-discrepancy sequences here}
 
+\TODO{Explain synthetic query sequences (fat, thin, categorical)}
+
 For smaller numbers of dimensions, it will be possible to exhaustively check all combinations of categorical variables \FIXME{Why would we not sample anyway to make it faster?}.
 
 
-\TODO{Realistic benchmark given user sessions, best guess}
+\TODO{Explain why user traces are representative of query patterns}
 
-\TODO{Measuring: memory, query time, build time, }
-
-\TODO{Which data sources and why}
-
-\TODO{Which queries and why (synthetic and from user sessions)}
+\TODO{Describe what we want to measure; memory, query time, build time}
 
 \section{Experiments}
 
-\TODO{Which systems (nanocubes, hashedcubes, immens, crossfilter, datavore)}
-
-\TODO{Plots, details of experiments (compiling, machine, how many times, more detail is better)}
+\TODO{Plots, details of experiments (compiling, machine, how many times, more detail)}
 
 \TODO{Interpretation of results}
 
-\section{Discussion (of paper; what did we not do?)}
+\section{Discussion}
 
-\TODO{how to improve this}
-
-\TODO{what did we miss}
+\TODO{How to improve the benchmark itself}
 
 \TODO{Different interface/system induces different user behavior (cite Jeff Heer, The effects of interactive latency on explorative visual analysis)}
 
@@ -337,7 +332,7 @@ For smaller numbers of dimensions, it will be possible to exhaustively check all
 
 \TODO{What this means for making new systems (easier, negative space)}
 
-\TODO{What next (making things parameterizable, what is the next research question)}
+\TODO{What next (making things parameterizable, what is the next research question...)}
 
 % \begin{table}
 % %% Table captions on top in journal version
@@ -381,4 +376,5 @@ a grant from XYZ.}
 %%use following if all content of bibtex file should be shown
 %\nocite{*}
 \bibliography{benchmarks}
+} %large
 \end{document}
