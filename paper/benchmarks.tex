@@ -76,29 +76,39 @@
 \authorfooter{
 %% insert punctuation at end of each item
 \item
- Martha Stewart is with Martha Stewart Enterprises at Microsoft
- Research. E-mail: martha.stewart@marthastewart.com.
+ Sean Stephens is at the University of Arizona. 
+ E-mail: seanastephens@email.arizona.edu
+\item
+ Carlos Scheidegger is at the University of Arizona. 
+ E-mail: cscheid@email.arizona.edu \FIXME{Check this}
 }
 
 %other entries to be set up for journal
 \shortauthortitle{Biv \MakeLowercase{\textit{et al.}}: Global Illumination for Fun and Profit}
 %\shortauthortitle{Firstauthor \MakeLowercase{\textit{et al.}}: Paper Title}
 
-\abstract{The data cube is a convenient abstraction for exploring
-	multi-dimensional datasets. However, exploring large datasets as data cubes
-	at interactive speeds requires specialized data structures and systems.
-	Such systems exist, but there is no comprehensive comparison of these
-	systems on realistic data. We present a benchmark that uses real-world and
-	synthetic spatiotemporal data to explore the performance of these systems
-	on realistic query sets.  We compare four existing systems using our
-	implementation and demonstrate performance differences between them.
-	Finally, we give a set of guidelines for choosing a system for
-	applications.
+\abstract{
+	The data cube is a convenient abstraction for exploring multi-dimensional
+	datasets and aggregations of those datasets over arbitrary attributes.
+	However, representations of large datasets as data cubes tend to consume
+	large amounts of memory, especially as the dimensionality of the data
+	increases. Recently published methods allow exploration of large datasets
+	through the data cube abstraction at interactive speeds by maintaining
+	keeping the data cube representation in main memory.  There is no
+	comprehensive comparison of the performance of these systems, and the
+	performance characteristics of each remain poorly understood.  We present a
+	benchmark that uses real-world spatiotemporal datasets as well as synthetic
+	data to explore the performance of these systems on real-world and
+	synthetic query sets.  We compare several existing systems using an
+	implementation of these benchmarks and demonstrate performance differences
+	between them. We report startup and query latency as well as memory and
+	bandwidth use, where applicable.  Finally, we give a set of guidelines for
+	choosing a system for applications.
 }
 
 %% Keywords that describe your work. Will show as 'Index Terms' in journal
 %% please capitalize first letter and insert punctuation after last keyword
-\keywords{Benchmark, Data Cube}
+\keywords{Benchmark, Data Cube.}
 
 %% ACM Computing Classification System (CCS). 
 %% See <http://www.acm.org/class/1998/> for details.
@@ -129,7 +139,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\large{
 
 %% The ``\maketitle'' command must be the first command after the
 %% ``\begin{document}'' command. It prepares and prints the title block.
@@ -140,33 +149,34 @@
 \maketitle
 
 %% \section{Introduction} %for journal use above \firstsection{..} instead
-Data cubes are a useful tool for exploring aggregates of high dimensional data
-\cite{data_cubes}. However, executing queries on data cubes of large datasets
-fast enough to support an interactive user interface is technically difficult
-because current systems use excessive memory usage or demand a high degree of
+Data cubes are a useful tool for exploring aggregates of high dimensional data, as they support \FIXME{Slicing, dicing -- find proper names for these operations}\cite{data_cubes}. However, executing queries on data cubes constructed from large datasets
+of high dimensionality fast enough to support an interactive user interface is
+technically difficult
+because current systems use large amounts of memory or demand a high degree of
 parallelism \cite{nanocubes, parallel_paper}.
 
-To address these problems, systems such as \textit{Nanocubes} and
+To address these problems, recent systems such as \textit{Nanocubes} and
 \textit{Hashedcubes} allow fast queries in several dimensions by storing the
 dataset in a server-side structure on dedicated hardware
-\cite{nanocube}\cite{hashedcube}. This approach is much more complex and
-resources intensive than simpler approaches such as linear scans on a client,
+\cite{nanocube}\cite{hashedcube}. This approach is more complex and
+resource intensive than simpler approaches such as linear scans on a client,
 as in \textit{datavore} and \textit{crossfilter} \cite{datavore,crossfilter}.
 On the other hand, it allows interactive exploration of data sets of tens of
-millions of points. Alternatively, appropriate limits on the resolution or dimensionality of the dataset can reduce query latency to interactive rates, as is done in \textit{imMens} \cite{2013-immens}. 
+millions of points. Alternatively, limits on the resolution or dimensionality of the dataset can allow pre-aggregation techniques that reduce query latency to interactive rates, as in \textit{imMens} \cite{2013-immens}. 
 
-Each of these systems were published with performance information exercising
-the system on real-world test data. However, the published performance measures
+Each of these systems were published with performance data exercising
+the system on real-world data. However, the published performance measures
 are not, in general, comparable. Different datasets were used, and critical
 parameters such as field resolution differ. As such, there is no complete
-picture of data/schema configurations each of these systems is best suited for,
+picture of which data and schemas each of these systems is best suited for,
 nor how each scales in different configurations.
 
 This paper contributes a benchmark that allows direct comparisons of the query
-performance of these systems on realistic data. Additionally, we describe an
-implementation for nanocubes and hashedcubes. Finally, we
-give guidance for choosing between and configuring these systems based on
-dataset and application.
+performance of these systems on realistic data. We describe an implementation
+for nanocubes hashedcubes, imMens, crossfilter/datavore \FIXME{We really only need one of these -- assuming that they utilize similar techniques, showing both really won't add much information}, and report
+performance in terms of startup and query latency, memory consumption, and
+bandwidth requirements. Finally, we give guidance for choosing between and
+configuring these systems based on dataset and application.
 
 
 \section{Related work}
@@ -176,147 +186,148 @@ entirety of a dataset to produce counts, histograms, and density plots
 \cite{?}. For an interactive visualization, supporting arbitrary aggregations
 smoothly on large datasets presents a problem due to performance. To maintain
 an interactive user experience, a plot of aggregates should refresh with low
-latency (This is not merely an aesthetic concern; high latency induces large
+latency (This is not merely an aesthetic concern; high latency induces significant
 changes in a user's exploration to the detriment of analysis, as explored in
-\cite{2014-latency} \FIXME{Inline citation here?}). However, naive techniques
-for computing aggregations, namely linear scans over the dataset, do not scale
+\cite{2014-latency}). However, naive techniques for computing aggregations, namely linear scans over the dataset, do not scale
 to datasets with tens of millions of entries.
 
-In this paper we are specifically interested in systems that allow fast queries on large spatiotemporal datasets. Specifically, we mean systems that efficiently support data with the following attributes:
+In this paper we are most interested in systems that allow fast queries on data cubes built from large spatiotemporal datasets. Specifically, we mean systems that efficiently support queries with latency ideally less than 100 ms but up to 1 second (using guidance from \cite{2014-latency} on data with the following types of attributes:
 
 \begin{itemize}
-	\item $1$ or more \textit{spatial} attributes, defined as a pair of related coordinates from an ordered domain, often latitude and longitude.
-	\item $0$ or more \textit{categorical} attributes, defined as a value from a discrete domain.
-	\item $1$ \textit{time} attribute, defined as an attribute over an ordered domain.
+	\item $1$ or more \textit{spatial} attributes. This type is inspired by geographical location, usually latitude and longitude, but more abstractly is any pair of related coordinates from an ordered domain. Indeed, while some systems provide explicit support for latitude and longitude, others allow arbitrary domains for spatial attributes and leave the choice of encoding to the user of the system.
+	\item $0$ or more \textit{categorical} attributes. Abstractly, this means a value from a discrete domain, but as a concrete example might be device type, language, or day of week for a telecommunication dataset.
+	\item $1$ \textit{time} attribute. This is any attribute over an ordered domain, but is frequently time.
 \end{itemize}
 
 \subsection{Existing Systems}
 
 Several solutions exist for this problem. Nanocubes builds a
-hierarchical tree of agregations that fits in main memory, in contrast to
+hierarchical tree of agregations that takes advantage of redundancy in the dataset
+to fit in main memory, in contrast to
 traditional relational database data cube aggregations which must be stored on
 disk \cite{nanocubes}. This system provides query performance that is fast
 enough for interactive applications and suports queries at different
 resolutions (up to the limits of the underlying data), but is memory intensive.
 
-A new alternative to nanocubes is hashedcubes. This system
+An alternative to nanocubes is hashedcubes. Hashedcubes 
 achieves similar performance for many common queries but consumes less memory
-by using a single sorted array, at the cost of poor performance in some cases.
+by using a single sorted array representation of the data, at the cost of poor 
+performance in some cases.
 Additionally, it does not allow fine queries in sparsely populated areas, as a
-tradeoff to prevent poor performance in other areas.
+tradeoff to guard against poor performance pathological queries.
 
-\textit{ImMens} pre-computes and compactly stores aggregates as so-called
+\textit{ImMens} pre-computes compact aggregates in so-called
 ``data-tiles'' \cite{2013-immens}. These tiles can be quickly queried using the
 GPU on the client.  ImMens achieves very fast response time (limited by the GPU
-refresh rate) and does not require a dedicated server, but requires
-pre-computing data tiles and limits on the resolution and dimensionality of the
-underlying data.
+refresh rate) and does not require an active server \FIXME{It has a dedicated server--need to verify that it is basically just file serving}, but requires
+both pre-computing data tiles and transmitting them to a client, as well as imposes limits on the resolution and dimensionality of the client's view into the dataset.
 
-An alternate solution to this performance challenge is sampling.
-\textit{BlinkDB} uses parallelism and intelligent sampling strategies to
-achieve approximate query results with $2-10\%$ error and response times on the
-order of $2$ seconds \cite{blinkdb}. This system is designed for datasets on
-the order of terabytes in size, but does not provide response times fast enough
-for an interactive application \FIXME{In the sense we are describing -- should
-specify this more carefully}. For datasets with tens to hundreds of millions of
-points, the previously described systems can produce much more accurate results
-using less time and resources. For this reason, we will not benchmark sampling
-systems here. \FIXME{This hardly seems like a comprehensive treatment of
-sampling systems -- need to look at more references}
-
-Finally, for small datasets with $1-5$ million elements, it is possible to do
-queries at near interactive latencies in a web browser. Systems such as
+For moderate datasets with $1-5$ million elements, it is possible to do
+queries at interactive latencies in a web browser. Systems such as
 \textit{datavore} and \textit{crossfilter} take this approach
 \cite{crossfilter,datavore}. While this approach does not scale to tens and
 hundreds of millions of data points due to latency and bandwidth consumption,
-it is a simple solution for small datasets. 
+it is a simple solution for small datasets, and has scales well as dimensionality increases for fixed dataset size.
+
+As an alternative to exact representations, some systems increase performance on large datasets by sampling.
+\textit{BlinkDB} uses parallelism and good choice of sampling strategy to
+achieve approximate query results with $2-10\%$ error and response times on the
+order of $2$ seconds \cite{blinkdb}. This system is designed for datasets on
+the order of terabytes in size, but does not provide response times fast enough
+for an interactive application by our definition here.
+In a related technique, systems like \textit{\FIXME{SAMPLING SYSTEM}} stream data to a client interface with low initial latency, but potentially several seconds until sufficient accuracy for common decision problems \cite{trust me} 
+
+\TODO{"Implementing Data Cubes Efficiently" might be cited here...}
+
+For datasets with tens to hundreds of millions of
+points, nanocubes, hashedcubes, imMens, and datavore can produce exact \FIXME{is exact an overstatement here?} results
+using less time then these streaming/sampling systems. Furthermore, there are fundamental differences in the visualizations that sampling/streaming systems and exact systems support \cite{nivan}. For this reason, we leave a benchmark comparing sampling/streaming systems to future work, and make no claim about their suitability in application compared to exact systems. 
 
 In this paper we will describe a benchmark aimed at nanocubes, hashedcubes,
-imMens, and crossfilter/datavore. Despite the performance measurements reported
-in publications for these systems, it is not possible to definitively state how
+imMens, and \FIXME{crossfilter/datavore}. Some of these systems have published performance measurements. Despite this, it is not possible to definitively state how
 each of these systems perform relative to each other. It is similarly not
-well-understood how each of these systems scale with dataset size,
-dimensionality, and query distribution. Our contribution is to rectify this
-situation and provide guidance for choosing between these systems for
-applications.
+well-understood how each of these systems scale with dataset size
+and dimensionality. Our contribution is to rectify this and provide guidance 
+for choosing between these systems for applications.
 
-\TODO{Why are we not covering streaming}
-
-\TODO{Why is TPC not applicable? On-disk, not specifically spatiotemporal}
-
-\TODO{"Implementing Data Cubes Efficiently" should be cited}
+\TODO{Why is TPC not applicable? Built for on-disk systems, not specifically spatiotemporal}
 
 \section{Benchmark}
-
-\FIXME{ How precise should thie specification be? }
 
 We have the following goals for a benchmark:
 
 \begin{itemize}
 	\item \textbf{Use realistic data and queries.} The systems under test
-		should operate on of datasets representative of real-world data. This
-		means datasets of large scale and with varied schema that show up in
-		real-world application. Specifically, the benchmark must test datasets
+		should operate on datasets representative of real-world data. This
+		means large datasets with varied schema that frequently occur in
+		real-world application. The benchmark should test datasets
 		that range from $1-100$ million data points, with $3$ or more dimensions
 		\FIXME{Why is this the right range? What evidence do we have for
 		this?}\cite{...}.  Additionally, the queries run against the systems
-		under test should be realistic.  They should reflect queries that
-		result from supporting actual user behavior.
+		under test should be realistic, and ideally be derived from queries that
+		result from actual user behavior.
 
 	\item \textbf{Exercise entire data-query space.} The set of configurations
 		and query sets used by the benchmark should span the full range of data
-		sets for which these systems may be reasonably applied. 
+		sets for which these systems may be reasonably applied, and completely exercise the system on each such dataset.
 		
-	\item \textbf{Efficiently cover data-query space.} The set of possible
-		systems, configurations, datasets, and queries is very large.
-		Pragmatically, it is important to choose tests that complete our goals
-		without requiring excessive time or resources to complete.
-
 \end{itemize}
 
 \subsection{Realistic data and queries}
 
 In the interest of supporting further research and consistent performance measurements across systems, part of the benchmark will be based on publicly-available data sets. However, we will supplement this with synthetic data when there is no suitable public dataset for testing a particular aspect of performance.
 
-We identify the following categories of datasets as distinct categories for which we expect significant deviation in performance between the systems under test. \FIXME{Why?}
+Publicly available datasets fall into several categories in terms of schema and size:
 
-\begin{itemize}
+\FIXME{Formatting}
+\begin{table}
+%% Table captions on top in journal version
+ \caption{Dataset categories}
+ \label{categories}
+ \scriptsize
+ \begin{center}
+   \begin{tabular}{cccc}
+     Name & Size & Dimensions & Datasets \\
+   \hline
+     Moderate & 1-10M & 1 spatial, 1 time, 0-7 categorical & Brightkite, Gowalla, Synthetic \\
+     Large & 10-150M+ & 1 spatial, 1 time, 0-4 categorical & Airline, Synthetic \\ 
+	 Multi-spatial & 10-100M & 2 spatial, 1 time, 0-2 categorical & Airline, taxicab, synthetic\\
+   \end{tabular}
+ \end{center}
+\end{table}
 
-	\item ~$1$ Million data points, $3-32$ dimensions. Examples: Splom, Anything
+\TODO{Explain why these are representative, good, etc.}
 
-	\item $5-10$ Million data points, $3-10$ dimensions. Examples: Brightkite,
-		Gowalla, Splom
+Our query sets are a combination of query sequences collected anonymously from user interactions with applications supported by nanocubes, as well synthetic query sequey.
 
-	\item $100+$ Million data points, $3-5$ dimensions. Examples: Airline,
-		Splom
+\TODO{Explain why user traces are representative of query patterns, with a massive caveat because they were collected through a small variety of interfaces}
 
-	\item A dataset with more than one spatial attribute \FIXME{Taxicab?}.
+We use query sequences collected from users because they are, at the very least, an approximation of possible user behavior. \FIXME{Make this caveat stand out more:} A major weakness of this source of data is that the user interactions occurred in the context of a specific user interface. It is well-established that the design of a user interface greatly impacts the patterns of exploration of users \FIXME{Why} \cite{?}. At the very least, an interface without a mechanism to express a particular query will never allow that query in a user session. On the other hand, using actual user data provides important advantages over purely synthetic query sets. Indeed, actual user data may have different query types in realistic proportions. Those proportions would be difficult to ascertain without examining user data. Additionally, the order of the queries is potentially important. Ordering may have complex interactions with caching at hardware and software levels as well as software optimizations in servers or web browsers. In the absence of a better model in which to properly understand the interactions of these factors, using realistic query sequences gives us a reasonable starting place to understand the performance of these systems.
 
-	\FIXME{Is a spatial attribute 1 or 2 dimensions}
-\end{itemize}
+\TODO{Include screenshots of nanocube interfaces}
 
-The first three classes of dataset consist of one spatial attribute, 1 temporal
-attribute, and $0-29$ categorical attributes. Conservatively, supposing that
-categorical dimensions have small domains of size $k$, it is clear that it is
-unreasonable to exhaustively search up to $k^{30}$ combinations of categorical
-variables; the problem is exacerbated when we consider that we would ideally
-test each of those combinations against many different spatial and time ranges.
-In these cases, we will show that a regular but sparse sampling of the
-categorical variable combinations will yield sufficient information about the
-performance characteristics of the systems under test. \FIXME{Should consider trying to apply low-discrepancy sequences here}
+To augment collected query sequences, we will generate an additional list of queries. Intuitively, this additional query set will be the product of 
+\begin{enumerate}
+	\item A sample of square spatial queries at minimal resolution, a sample of thin rectangular spatial queries at minimal resolution, a sample of square spatial queries at high resolution, and a sample of thin rectangular spatial queries at high resolution
+	\item A sample of combinations of categorical dimensions
+	\item A sample of large time ranges, a sample of short time ranges.
+\end{enumerate}
 
-\TODO{Explain synthetic query sequences (fat, thin, categorical)}
+For the multi-spatial dataset, (1) will be applied twice. 
 
-For smaller numbers of dimensions, it will be possible to exhaustively check all combinations of categorical variables \FIXME{Why would we not sample anyway to make it faster?}.
+In contrast to user-generated queries, the synthetic queries are less realistic but potentially cover a broader range of possible queries. Thus, we use the user queries to measure performance under realistic load, and the synthetic queries to explore the rest of the query space for each system.
 
-
-\TODO{Explain why user traces are representative of query patterns}
+\TODO{Should consider trying to apply low-discrepancy sequences here}
 
 \TODO{Describe what we want to measure; memory, query time, build time}
 
+The first metrics of interest during queries will be query latency and memory consumption by the server. For nanocubes and hashedcubes this means memory consumed on the server-side, while for \FIXME{crossfilter/datavore} and imMens it means browser/GPU memory consumption. Of secondary interest is startup time. For nanocubes and hashedcubes this means the time that the server takes to read in data and be ready to accept queries. For imMens and \FIXME{crossfilter/datavore} this means the bandwidth/time required for the initial data transfer to the client. We also report tile construction time for imMens. \FIXME{This all needs to be torn out and re-written}
+
 \section{Experiments}
 
-\TODO{Plots, details of experiments (compiling, machine, how many times, more detail)}
+\TODO{Plots}
+
+\TODO{details of experiments (compiling, machine, how many times, more detail)}
 
 \TODO{Interpretation of results}
 
@@ -334,32 +345,6 @@ For smaller numbers of dimensions, it will be possible to exhaustively check all
 
 \TODO{What next (making things parameterizable, what is the next research question...)}
 
-% \begin{table}
-% %% Table captions on top in journal version
-%  \caption{SciVis Paper Acceptance Rate: 1994-2006}
-%  \label{vis_accept}
-%  \scriptsize
-%  \begin{center}
-%    \begin{tabular}{cccc}
-%      Year & Submitted & Accepted & Accepted (\%)\\
-%    \hline
-%      1994 &  91 & 41 & 45.1\\
-%      1995 & 102 & 41 & 40.2\\
-%      1996 & 101 & 43 & 42.6\\
-%      1997 & 117 & 44 & 37.6\\
-%      1998 & 118 & 50 & 42.4\\
-%      1999 & 129 & 47 & 36.4\\
-%      2000 & 151 & 52 & 34.4\\
-%      2001 & 152 & 51 & 33.6\\
-%      2002 & 172 & 58 & 33.7\\
-%      2003 & 192 & 63 & 32.8\\
-%      2004 & 167 & 46 & 27.6\\
-%      2005 & 268 & 88 & 32.8\\
-%      2006 & 228 & 63 & 27.6
-%    \end{tabular}
-%  \end{center}
-% \end{table}
-
 % \begin{figure}[htb]
 %  \centering
 %  \includegraphics[width=1.5in]{sample}
@@ -369,12 +354,11 @@ For smaller numbers of dimensions, it will be possible to exhaustively check all
 
 %% if specified like this the section will be committed in review mode
 \acknowledgments{
-The authors wish to thank A, B, C. This work was supported in part by
-a grant from XYZ.}
+	\TODO{Ask Carlos}
+}
 
 \bibliographystyle{abbrv}
 %%use following if all content of bibtex file should be shown
 %\nocite{*}
 \bibliography{benchmarks}
-} %large
 \end{document}
