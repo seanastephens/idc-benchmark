@@ -88,27 +88,29 @@
 %\shortauthortitle{Firstauthor \MakeLowercase{\textit{et al.}}: Paper Title}
 
 \abstract{
-	The data cube is a convenient abstraction for exploring multi-dimensional
-	datasets and aggregations of those datasets over arbitrary attributes.
-	However, representations of large datasets as data cubes tend to consume
-	large amounts of memory, especially as the dimensionality of the data
-	increases. Recently published methods allow exploration of large datasets
-	through the data cube abstraction at interactive speeds by maintaining
-	keeping the data cube representation in main memory.  There is no
-	comprehensive comparison of the performance of these systems, and the
-	performance characteristics of each remain poorly understood.  We present a
-	benchmark that uses real-world spatiotemporal datasets as well as synthetic
-	data to explore the performance of these systems on real-world and
-	synthetic query sets.  We compare several existing systems using an
-	implementation of these benchmarks and demonstrate performance differences
-	between them. We report startup and query latency as well as memory and
-	bandwidth use, where applicable.  Finally, we give a set of guidelines for
-	choosing a system for applications.
+	The data cube is a convenient abstraction for exploring aggregations of
+	multi-dimensional datasets.  However, representations of large datasets as
+	data cubes tend to require prohibitive amounts of memory or time,
+	especially as the dimensionality of the data increases.  Recently, data
+	cube systems have been developed specifically for interactive
+	visualization.  They allow exploration of large datasets through the data
+	cube abstraction at interactive speeds by maintaining an efficient 
+	representation in main memory, or by using pre-aggregation and the
+	GPU. We argue that existing performance measurements for these systems are
+	at times incomparable, and that the performance characteristics of each are
+	poorly understood.  In light of this, we present a benchmark that uses
+	real-world spatiotemporal datasets as well as synthetic data to explore the
+	performance of these systems on real-world and synthetic query sets.  We
+	compare several existing systems using an implementation of these
+	benchmarks and demonstrate performance differences between them, measured
+	as startup latency, query latency, memory use, and bandwidth use.  Finally,
+	we give a set of guidelines for choosing between these systems based on
+	application requirements.
 }
 
 %% Keywords that describe your work. Will show as 'Index Terms' in journal
 %% please capitalize first letter and insert punctuation after last keyword
-\keywords{Benchmark, Data Cube.}
+\keywords{Benchmark, Data Cube, Multidimensional Data.}
 
 %% ACM Computing Classification System (CCS). 
 %% See <http://www.acm.org/class/1998/> for details.
@@ -149,16 +151,20 @@
 \maketitle
 
 %% \section{Introduction} %for journal use above \firstsection{..} instead
-Data cubes are a useful tool for exploring aggregates of high dimensional data, as they support \FIXME{Slicing, dicing -- find proper names for these operations}\cite{data_cubes}. However, executing queries on data cubes constructed from large datasets
-of high dimensionality fast enough to support an interactive user interface is
-technically difficult
-because current systems use large amounts of memory or demand a high degree of
-parallelism \cite{nanocubes, parallel_paper}.
+Data cubes are a useful tool for exploring aggregates of high dimensional data.
+In particular, they allow the common \FIXME{should link to Roll up? Drill down? Sub-total?
+Group-by? Cross-Tab?}\cite{2007-data-cube}.  Recent \textit{visual} data cube
+systems allow exploration of multidimensional data using a visualized data
+cube, allowing selections over different dimensions and showing aggregates of
+the data with respect to those selections. However, implementing these visual
+data cube systems efficiently enough to support large, high-dimensional
+datasets with low update latency is technically difficult, and often requires large amounts of memory, bandwidth, or CPU time \cite{???}. Despite these difficulties, 
+these systems is required for interactive visualizations of these datasets.
 
 To address these problems, recent systems such as \textit{Nanocubes} and
 \textit{Hashedcubes} allow fast queries in several dimensions by storing the
 dataset in a server-side structure on dedicated hardware
-\cite{nanocube}\cite{hashedcube}. This approach is more complex and
+\cite{2013-nanocubes,hashedcube}. This approach is more complex and
 resource intensive than simpler approaches such as linear scans on a client,
 as in \textit{datavore} and \textit{crossfilter} \cite{datavore,crossfilter}.
 On the other hand, it allows interactive exploration of data sets of tens of
@@ -279,22 +285,25 @@ In the interest of supporting further research and consistent performance measur
 
 Publicly available datasets fall into several categories in terms of schema and size:
 
-\FIXME{Formatting}
-\begin{table}
+\begin{figure*}
 %% Table captions on top in journal version
- \caption{Dataset categories}
- \label{categories}
  \scriptsize
- \begin{center}
-   \begin{tabular}{cccc}
-     Name & Size & Dimensions & Datasets \\
+ \label{benchmark-figure}
+ \caption{Benchmark}
+ \begin{tabular}{ p{3cm}p{2cm}p{4cm}p{4cm} }
+   Data class & Size & Number of Dimensions & Candidates \\
    \hline
-     Moderate & 1-10M & 1 spatial, 1 time, 0-7 categorical & Brightkite, Gowalla, Synthetic \\
-     Large & 10-150M+ & 1 spatial, 1 time, 0-4 categorical & Airline, Synthetic \\ 
-	 Multi-spatial & 10-100M & 2 spatial, 1 time, 0-2 categorical & Airline, taxicab, synthetic\\
-   \end{tabular}
- \end{center}
-\end{table}
+   Moderate & 1-10M & 1 spatial, 1 time, 0-7 categorical & Brightkite, Gowalla, Synthetic \\
+   Large & 10-150M+ & 1 spatial, 1 time, 0-4 categorical & Airline, Synthetic \\ 
+   Multi-spatial & 10-100M & 2 spatial, 1 time, 0-2 categorical & Airline, taxicab, synthetic\\
+ \end{tabular}
+ \begin{tabular}{p{3cm}p{5cm}}
+   Query class & Description \\
+   \hline
+   User-generated & Session data from linked spatial, temporal, and categorical views \\
+   Synthetic & Product of samples from possible spatial queries, categorical queries, and temporal queries\\
+ \end{tabular}
+\end{figure*}
 
 \TODO{Explain why these are representative, good, etc.}
 
@@ -317,15 +326,31 @@ For the multi-spatial dataset, (1) will be applied twice.
 
 In contrast to user-generated queries, the synthetic queries are less realistic but potentially cover a broader range of possible queries. Thus, we use the user queries to measure performance under realistic load, and the synthetic queries to explore the rest of the query space for each system.
 
-\TODO{Should consider trying to apply low-discrepancy sequences here}
-
 \TODO{Describe what we want to measure; memory, query time, build time}
 
 The first metrics of interest during queries will be query latency and memory consumption by the server. For nanocubes and hashedcubes this means memory consumed on the server-side, while for \FIXME{crossfilter/datavore} and imMens it means browser/GPU memory consumption. Of secondary interest is startup time. For nanocubes and hashedcubes this means the time that the server takes to read in data and be ready to accept queries. For imMens and \FIXME{crossfilter/datavore} this means the bandwidth/time required for the initial data transfer to the client. We also report tile construction time for imMens. \FIXME{This all needs to be torn out and re-written}
 
 \section{Experiments}
 
-\TODO{Plots}
+\begin{figure*}
+%% Table captions on top in journal version
+ \scriptsize
+ \label{results-figure}
+ \caption{Results - Either time/memory or two separate plots}
+ \begin{tabular}{ p{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm} }
+	 System & 
+	 Moderate/User-queries & 
+	 Moderate/Synthetic-queries & 
+	 Large/User-queries & 
+	 Large/Synthetic-queries & 
+	 Multi-Spatial/Synthetic-queries \\
+   \hline
+   Hashedcubes &&&&& \\
+   Nanocubes &&&&& \\
+   ImMens &&&&& \\
+   Crossfilter/Datavore &&&&& \\
+ \end{tabular}
+\end{figure*}
 
 \TODO{details of experiments (compiling, machine, how many times, more detail)}
 
@@ -333,6 +358,14 @@ The first metrics of interest during queries will be query latency and memory co
 
 \section{Discussion}
 
+\begin{figure*}
+%% Table captions on top in journal version
+ \scriptsize
+ \label{recommendations-figure}
+ \caption{Recommendations - How do we want this?}
+ \begin{tabular}{ p{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm} }
+ \end{tabular}
+\end{figure*}
 \TODO{How to improve the benchmark itself}
 
 \TODO{Different interface/system induces different user behavior (cite Jeff Heer, The effects of interactive latency on explorative visual analysis)}
@@ -354,7 +387,7 @@ The first metrics of interest during queries will be query latency and memory co
 
 %% if specified like this the section will be committed in review mode
 \acknowledgments{
-	\TODO{Ask Carlos}
+	\TODO{Carlos}
 }
 
 \bibliographystyle{abbrv}
